@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Button?>
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="1100.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.doctorappointments.controller.DoctorsList">
+
+
+    <children>
+        <Button fx:id="filterButton" layoutX="570.0" layoutY="21.0" text="Filter Specialty" style="-fx-background-color: #5A9BD5; -fx-text-fill: white; -fx-border-radius: 7px;" AnchorPane.leftAnchor="520.0"/>
+
+
+        <TableView fx:id="doctorTableView" layoutX="50.0" layoutY="81.0" prefHeight="537.0" prefWidth="1000.0" AnchorPane.bottomAnchor="74.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="81.0">
+            <columns>
+                <TableColumn fx:id="doctorNameTableColumn" text="Doctor" resizable="true" />
+                <TableColumn fx:id="specialityTableColumn" text="Specialty" resizable="true" />
+                <TableColumn fx:id="telTableColumn" text="Phone" resizable="true" />
+                <TableColumn fx:id="adresseTableColumn" text="Address" resizable="true" />
+            </columns>
+        </TableView>
+
+
+
+    </children>
+    <padding>
+        <Insets left="20.0" right="20.0" />
+    </padding>
+</AnchorPane>
