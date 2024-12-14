@@ -21,6 +21,7 @@
                 <TableColumn fx:id="specialityTableColumn" text="Specialty" resizable="true" />
                 <TableColumn fx:id="telTableColumn" text="Phone" resizable="true" />
                 <TableColumn fx:id="adresseTableColumn" text="Address" resizable="true" />
+                <TableColumn fx:id="ActionsTableColumn" editable="false" prefWidth="460.0" text="Actions"/>
             </columns>
         </TableView>
 

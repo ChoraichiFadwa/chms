@@ -5,7 +5,10 @@ import com.example.doctorappointments.model.Speciality;
 import com.example.doctorappointments.service.DoctorService;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 
@@ -16,7 +19,7 @@ import java.util.ResourceBundle;
 
 
 public class DoctorUpdateFormController implements Initializable {
-    private int doctorID=65656;
+    private int doctorID;
 
     @FXML
     private Label title;
@@ -42,6 +45,27 @@ public class DoctorUpdateFormController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         loadSpecialities();
+        //loadInitialData();
+    }
+    public static void openUpdateForm(int doctorID) {
+        try {
+            FXMLLoader loader = new FXMLLoader(DoctorUpdateFormController.class.getResource("/path/to/DoctorUpdateForm.fxml"));
+            Parent root = loader.load();
+
+            // Pass the doctor ID to the controller
+            DoctorUpdateFormController controller = loader.getController();
+            controller.setDoctorID(doctorID);
+
+            Stage stage = new Stage();
+            stage.setTitle("Update Doctor");
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public void setDoctorID(int doctorID) {
+        this.doctorID = doctorID;
         loadInitialData();
     }
 

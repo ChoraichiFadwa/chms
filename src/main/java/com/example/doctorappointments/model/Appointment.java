@@ -121,7 +121,7 @@ public class Appointment {
                 Double price = resultSet.getDouble("Price");
                 Integer paye = resultSet.getInt("Paye");
                 String status = resultSet.getString("Status");
-                String service = resultSet.getString("Service");
+                String service = resultSet.getString("IDService");
 
                 Appointment appointment = new Appointment(idAppointment, idDoctor, idPatient, appointmentDate, price, paye, status, service);
                 appointments.add(appointment);

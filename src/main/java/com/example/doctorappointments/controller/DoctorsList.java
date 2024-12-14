@@ -1,15 +1,23 @@
 package com.example.doctorappointments.controller;
 
+import com.example.doctorappointments.model.Appointment;
 import com.example.doctorappointments.model.Doctor;
 import com.example.doctorappointments.model.Speciality;
 import com.example.doctorappointments.service.DoctorService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.control.ChoiceDialog;
+import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.util.List;
 
 public class DoctorsList {
@@ -47,6 +55,8 @@ public class DoctorsList {
 
     private ObservableList<Doctor> doctors;
     private DoctorService doctorService;  // Instance of DoctorService
+    @FXML
+    private TableColumn<Doctor, Void> ActionsTableColumn;
 
     @FXML
     private void initialize() {
@@ -75,10 +85,46 @@ public class DoctorsList {
         adresseTableColumn.prefWidthProperty().bind(doctorTableView.widthProperty().multiply(0.30));
 
         // Populate the TableView with the doctor data
-        doctorTableView.setItems(doctors);
+
 
         filterButton.setOnMouseClicked(this::onFilterButtonClicked);
 
+        ActionsTableColumn = new TableColumn<>("Actions");
+        doctorTableView.getColumns().add(ActionsTableColumn);
+
+        ActionsTableColumn.setCellFactory(param -> new TableCell<Doctor, Void>() {
+            private final Button updateDoctorButton = new Button("Update");
+            public void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || getIndex() < 0 || getIndex() >= getTableView().getItems().size()) {
+                    setGraphic(null);
+                } else {
+                    Doctor doctor = getTableView().getItems().get(getIndex());
+                    updateDoctorButton.setOnAction(event -> handleDoctorUpdate(doctor));
+                    setGraphic(updateDoctorButton);
+                }
+            }
+
+        });
+
+
+
+        doctorTableView.setItems(doctors);
+    }
+    private void handleDoctorUpdate(Doctor doctor) {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/doctorappointments/doctor-update-form.fxml"));
+            Parent root = fxmlLoader.load();
+            // Get the controller for the update form
+            DoctorUpdateFormController controller = fxmlLoader.getController();
+            controller.setDoctorID(doctor.getIdDoctor());
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root, 1100, 700));
+            stage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
     // Handle filter button click
     private void onFilterButtonClicked(MouseEvent event) {
