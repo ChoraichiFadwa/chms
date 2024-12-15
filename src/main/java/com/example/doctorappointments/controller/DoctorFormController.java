@@ -1,15 +1,12 @@
 package com.example.doctorappointments.controller;
 
-import com.example.doctorappointments.model.Doctor;
 import com.example.doctorappointments.model.Speciality;
 import com.example.doctorappointments.service.DoctorService;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TextField;
-import javafx.scene.control.Button;
+import javafx.scene.control.*;
+import javafx.stage.Stage;
 
 import java.net.URL;
 import java.util.HashMap;
@@ -17,6 +14,8 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 public class DoctorFormController implements Initializable {
+    @FXML
+    private Label title;
 
     @FXML
     private ComboBox<String> combo_speciality;
@@ -32,6 +31,7 @@ public class DoctorFormController implements Initializable {
 
     @FXML
     private TextField adresseField;
+    private DoctorsList doctorsListController; // Reference to DoctorsList controller
 
 
     private Map<String, Integer> specialityMap = new HashMap<>();
@@ -45,15 +45,10 @@ public class DoctorFormController implements Initializable {
 
     private void loadSpecialities() {
         ObservableList<Speciality> specialities = DoctorService.getAllSpecialities();
-        ObservableList<Doctor> doctor = DoctorService.getDoctorDetails(1);
-        System.out.println(doctor);
-
-        ObservableList<Doctor> doctor2 = DoctorService.getDoctorDetails(1468490);
-        System.out.println(doctor2);
 
         for (Speciality speciality : specialities) {
-            combo_speciality.getItems().add(speciality.getNomSpeciality());
-            specialityMap.put(speciality.getNomSpeciality(), speciality.getIdSpeciality());
+            combo_speciality.getItems().add(speciality.getIdSpeciality()+ " - " + speciality.getNomSpeciality());
+            specialityMap.put(speciality.getIdSpeciality()+ " - " + speciality.getNomSpeciality(), speciality.getIdSpeciality());
         }
 
     }
@@ -93,6 +88,13 @@ public class DoctorFormController implements Initializable {
         boolean done= DoctorService.insertDoctor(specialityId, nom, prenom, tel, adresse);
         if (done) {
             showAlert(Alert.AlertType.INFORMATION, "Doctor added successfully!");
+            // Close the update form
+            Stage stage = (Stage) title.getScene().getWindow();
+            stage.close();
+            // Refresh doctor data in DoctorsList
+            if (doctorsListController != null) {
+                doctorsListController.refreshDoctorData();
+            }
         }
         else {
             showAlert(Alert.AlertType.ERROR, "Error in inserting the new doctor");
@@ -103,5 +105,9 @@ public class DoctorFormController implements Initializable {
         Alert alert = new Alert(alertType);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    public void setDoctorsListController(DoctorsList doctorsListController) {
+        this.doctorsListController = doctorsListController;
     }
 }

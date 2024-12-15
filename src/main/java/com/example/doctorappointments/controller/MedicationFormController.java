@@ -162,7 +162,7 @@ public class MedicationFormController {
         System.out.println("Selected Medicament: " + selectedMedicaments);
         System.out.println("Creation Date: " + java.time.LocalDate.now());
         System.out.println("Appointment ID: " + appointmentID);
-        Boolean done=OrdonnanceService.insertOrdonnance(appointment.getIDDoctor(), java.sql.Timestamp.valueOf(java.time.LocalDateTime.now()), pharmacyID, appointment.getIDPatient(), "Pending",medicationIDs);
+        boolean done=OrdonnanceService.insertOrdonnance(appointment.getIDDoctor().intValue(), java.sql.Timestamp.valueOf(java.time.LocalDateTime.now()), pharmacyID.intValue(), appointment.getIDPatient().intValue(), medicationIDs);
         if (done) {
             showAlert(Alert.AlertType.INFORMATION, "Prescription added successfully!");
             ((Stage) title.getScene().getWindow()).close();

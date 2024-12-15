@@ -108,11 +108,12 @@ public class DoctorService {
 
         return specialities;
     }
+
     public ObservableList<Doctor> getAllDoctors() {
         ObservableList<Doctor> doctors = FXCollections.observableArrayList();
         String query = "SELECT doctor.IDDoctor, doctor.IDSpeciality, doctor.Nom, doctor.Prenom, doctor.Tel, doctor.Adresse, speciality.NomSpeciality " +
                 "FROM doctor " +
-                "JOIN speciality ON doctor.IDSpeciality = speciality.IDSpeciality";;  // Modify this query to suit your database schema
+                "JOIN speciality ON doctor.IDSpeciality = speciality.IDSpeciality";  // Modify this query to suit your database schema
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query);

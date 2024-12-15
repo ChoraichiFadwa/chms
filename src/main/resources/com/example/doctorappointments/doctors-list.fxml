@@ -14,6 +14,7 @@
     <children>
         <Button fx:id="filterButton" layoutX="570.0" layoutY="21.0" text="Filter Specialty" style="-fx-background-color: #5A9BD5; -fx-text-fill: white; -fx-border-radius: 7px;" AnchorPane.leftAnchor="520.0"/>
 
+        <Button fx:id="addButton" layoutX="909.0" layoutY="17.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="161.0" style="-fx-background-color: #5A9BD5; -fx-text-fill: #fff;" text="Add New Doctor" onAction="#handleNewDoctor"/>
 
         <TableView fx:id="doctorTableView" layoutX="50.0" layoutY="81.0" prefHeight="537.0" prefWidth="1000.0" AnchorPane.bottomAnchor="74.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="81.0">
             <columns>

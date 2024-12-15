@@ -1,20 +1,18 @@
 package com.example.doctorappointments.controller;
 
-import com.example.doctorappointments.model.Appointment;
 import com.example.doctorappointments.model.Doctor;
 import com.example.doctorappointments.model.Speciality;
 import com.example.doctorappointments.service.DoctorService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.control.ChoiceDialog;
-import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -53,18 +51,14 @@ public class DoctorsList {
     @FXML
     private TextField doctorAddressField;
 
-    private ObservableList<Doctor> doctors;
-    private DoctorService doctorService;  // Instance of DoctorService
+    private ObservableList<Doctor> doctors = FXCollections.observableArrayList();
+    private DoctorService doctorService=new DoctorService();
     @FXML
     private TableColumn<Doctor, Void> ActionsTableColumn;
 
     @FXML
     private void initialize() {
-        // Instantiate the DoctorService
-        doctorService = new DoctorService();
-
         // Fetch doctors from the service
-        doctors = FXCollections.observableArrayList();
         doctors.addAll(doctorService.getAllDoctors());  // Assuming this method returns all doctors
 
         // Setting up the TableView columns
@@ -115,9 +109,13 @@ public class DoctorsList {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/doctorappointments/doctor-update-form.fxml"));
             Parent root = fxmlLoader.load();
+
             // Get the controller for the update form
             DoctorUpdateFormController controller = fxmlLoader.getController();
             controller.setDoctorID(doctor.getIdDoctor());
+
+            // Pass the DoctorsList controller to the update form
+            controller.setDoctorsListController(this);
             Stage stage = new Stage();
             stage.setScene(new Scene(root, 1100, 700));
             stage.show();
@@ -126,6 +124,9 @@ public class DoctorsList {
             e.printStackTrace();
         }
     }
+
+
+
     // Handle filter button click
     private void onFilterButtonClicked(MouseEvent event) {
         // Open a dialog or dropdown with all available specialties
@@ -140,6 +141,7 @@ public class DoctorsList {
             filterDoctorsBySpecialty(selectedSpeciality.getNomSpeciality());
         });
     }
+
 
     private void filterDoctorsBySpecialty(String specialtyName) {
         ObservableList<Doctor> filteredDoctors = FXCollections.observableArrayList();
@@ -160,6 +162,32 @@ public class DoctorsList {
             doctorSpecialityField.setText(String.valueOf(selectedDoctor.getIdSpeciality())); // You can map this to the specialty name if needed
             doctorPhoneField.setText(selectedDoctor.getTel());
             doctorAddressField.setText(selectedDoctor.getAdresse());
+        }
+    }
+
+    public void refreshDoctorData() {
+        // Clear the current list and fetch updated data
+        doctors.clear();
+        doctors.addAll(doctorService.getAllDoctors()); // Fetch updated list of doctors
+        doctorTableView.refresh(); // Refresh TableView to reflect new data
+    }
+
+    public void handleNewDoctor(ActionEvent actionEvent) {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/doctorappointments/doctor-form.fxml"));
+            Parent root = fxmlLoader.load();
+
+            // Get the controller for the update form
+            DoctorFormController controller = fxmlLoader.getController();
+
+            // Pass the DoctorsList controller to the update form
+            controller.setDoctorsListController(this);
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root, 1100, 700));
+            stage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

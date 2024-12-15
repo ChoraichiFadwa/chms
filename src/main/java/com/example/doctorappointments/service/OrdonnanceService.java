@@ -4,9 +4,9 @@ import javafx.collections.ObservableList;
 import java.sql.*;
 
 public class OrdonnanceService {
-    public static boolean insertOrdonnanceTest(int idDoctor, Timestamp dateTest, int idPatient, String status, ObservableList<Integer> idTests) {
+    public static boolean insertOrdonnanceTest(int idDoctor, Timestamp dateTest, int idPatient, ObservableList<Integer> idTests) {
         String sqlOrdonnance = "INSERT INTO ordonnancetest (IDDoctor, DateOrdonnanceTest, IDPatient, Status) VALUES (?, ?, ?, ?)";
-        String sqlOrdonnanceMedicament = "INSERT INTO ordonnancedetails (IDOrdonnance, IDTest) VALUES (?, ?)";
+        String sqlOrdonnanceMedicament = "INSERT INTO testresult (IDOrdonnanceTest, IDTest) VALUES (?, ?)";
 
         Connection conn = null;
         try {
@@ -20,7 +20,7 @@ public class OrdonnanceService {
                 pstmtOrdonnance.setInt(1, idDoctor);
                 pstmtOrdonnance.setTimestamp(2, dateTest);
                 pstmtOrdonnance.setInt(3, idPatient);
-                pstmtOrdonnance.setString(4, status);
+                pstmtOrdonnance.setInt(4, 0);
 
                 int affectedRows = pstmtOrdonnance.executeUpdate();
 
@@ -52,12 +52,10 @@ public class OrdonnanceService {
 
             } catch (SQLException e) {
                 // Rollback transaction in case of error
-                if (conn != null) {
-                    try {
-                        conn.rollback();
-                    } catch (SQLException ex) {
-                        System.err.println("Error during rollback: " + ex.getMessage());
-                    }
+                try {
+                    conn.rollback();
+                } catch (SQLException ex) {
+                    System.err.println("Error during rollback: " + ex.getMessage());
                 }
                 System.err.println("Database error: " + e.getMessage());
                 return false;
@@ -78,7 +76,7 @@ public class OrdonnanceService {
         }
     }
 
-    public static boolean insertOrdonnance(int idDoctor, Timestamp dateCreation, int idPharmacien, int idPatient, String status, ObservableList<Integer> idMedicaments) {
+    public static boolean insertOrdonnance(int idDoctor, Timestamp dateCreation, int idPharmacien, int idPatient, ObservableList<Integer> idMedicaments) {
         String sqlOrdonnance = "INSERT INTO Ordonnance (IDDoctor, DateCreation, IDPharmacien, IDPatient, Status) VALUES (?, ?, ?, ?, ?)";
         String sqlOrdonnanceMedicament = "INSERT INTO Ordonnance_Medicament (IDOrdonnance, IDMedicament) VALUES (?, ?)";
 
@@ -95,7 +93,7 @@ public class OrdonnanceService {
                 pstmtOrdonnance.setTimestamp(2, dateCreation);
                 pstmtOrdonnance.setInt(3, idPharmacien);
                 pstmtOrdonnance.setInt(4, idPatient);
-                pstmtOrdonnance.setString(5, status);
+                pstmtOrdonnance.setInt(5, 0);
 
                 int affectedRows = pstmtOrdonnance.executeUpdate();
 
@@ -127,12 +125,10 @@ public class OrdonnanceService {
 
             } catch (SQLException e) {
                 // Rollback transaction in case of error
-                if (conn != null) {
-                    try {
-                        conn.rollback();
-                    } catch (SQLException ex) {
-                        System.err.println("Error during rollback: " + ex.getMessage());
-                    }
+                try {
+                    conn.rollback();
+                } catch (SQLException ex) {
+                    System.err.println("Error during rollback: " + ex.getMessage());
                 }
                 System.err.println("Database error: " + e.getMessage());
                 return false;

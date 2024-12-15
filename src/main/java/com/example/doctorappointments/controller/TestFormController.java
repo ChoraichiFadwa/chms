@@ -119,7 +119,7 @@ public class TestFormController {
         System.out.println("Selected Tests: " + selectedTests);
         System.out.println("Selected Test IDs: " + testIDs);
         System.out.println("Test Date: " + date_test.getValue());
-        Boolean done = OrdonnanceService.insertOrdonnanceTest(appointment.getIDDoctor(), java.sql.Timestamp.valueOf(date_test.getValue().atStartOfDay()), appointment.getIDPatient(), "Pending", testIDs);
+        Boolean done = OrdonnanceService.insertOrdonnanceTest(appointment.getIDDoctor(), java.sql.Timestamp.valueOf(date_test.getValue().atStartOfDay()), appointment.getIDPatient(), testIDs);
 
         if (done) {
             showAlert(Alert.AlertType.INFORMATION, "Prescription added successfully!");

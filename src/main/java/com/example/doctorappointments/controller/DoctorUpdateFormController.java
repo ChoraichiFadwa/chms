@@ -42,6 +42,8 @@ public class DoctorUpdateFormController implements Initializable {
 
     private Map<String, Integer> specialityMap = new HashMap<>();
 
+    private DoctorsList doctorsListController; // Reference to DoctorsList controller
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         loadSpecialities();
@@ -146,6 +148,9 @@ public class DoctorUpdateFormController implements Initializable {
         else {
             showAlert(Alert.AlertType.ERROR, "Error in update the doctor");
         }
+    }
+    public void setDoctorsListController(DoctorsList doctorsListController) {
+        this.doctorsListController = doctorsListController;
     }
 
     private void showAlert(Alert.AlertType alertType, String message) {
