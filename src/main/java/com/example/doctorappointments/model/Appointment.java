@@ -1,12 +1,6 @@
 package com.example.doctorappointments.model;
-
-
-import com.example.doctorappointments.service.DatabaseConnection;
-
 import java.sql.*;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Appointment {
     private Integer IDAppointment;
@@ -16,9 +10,9 @@ public class Appointment {
     private Double Price;
     private Integer Paye;
     private String Status;
-    private String Service;
+    private Integer IDService;
 
-    public Appointment(Integer IDAppointment, Integer IDDoctor, Integer IDPatient, Timestamp appointmentDate, Double price, Integer paye, String status, String service) {
+    public Appointment(Integer IDAppointment, Integer IDDoctor, Integer IDPatient, Timestamp appointmentDate, Double price, Integer paye, String status, Integer IDService) {
         this.IDAppointment = IDAppointment;
         this.IDDoctor = IDDoctor;
         this.IDPatient = IDPatient;
@@ -26,7 +20,7 @@ public class Appointment {
         this.Price = price;
         this.Paye = paye;
         this.Status = status;
-        this.Service = service;
+        this.IDService = IDService;
     }
 
     public Integer getIDAppointment() {
@@ -85,12 +79,12 @@ public class Appointment {
         this.Status = status;
     }
 
-    public String getService() {
-        return Service;
+    public Integer getIDService() {
+        return IDService;
     }
 
-    public void setService(String service) {
-        this.Service = service;
+    public void setIDService(Integer IDService) {
+        this.IDService = IDService;
     }
 
     public String getFormattedDate() {
@@ -101,36 +95,6 @@ public class Appointment {
     public String getFormattedTime() {
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
         return timeFormat.format(AppointmentDate);
-    }
-
-
-
-    public static List<Appointment> getAllAppointments() {
-        List<Appointment> appointments = new ArrayList<>();
-        String query = "SELECT * FROM appointment";
-
-        try (Connection connection = DatabaseConnection.getConnection();
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(query)) {
-
-            while (resultSet.next()) {
-                Integer idAppointment = resultSet.getInt("IDAppointment");
-                Integer idDoctor = resultSet.getInt("IDDoctor");
-                Integer idPatient = resultSet.getInt("IDPatient");
-                Timestamp appointmentDate = resultSet.getTimestamp("AppointmentDate");
-                Double price = resultSet.getDouble("Price");
-                Integer paye = resultSet.getInt("Paye");
-                String status = resultSet.getString("Status");
-                String service = resultSet.getString("IDService");
-
-                Appointment appointment = new Appointment(idAppointment, idDoctor, idPatient, appointmentDate, price, paye, status, service);
-                appointments.add(appointment);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return appointments;
     }
 
 }

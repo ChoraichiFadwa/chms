@@ -1,10 +1,14 @@
 package com.example.doctorappointments.controller;
 
 import com.example.doctorappointments.model.Appointment;
+import com.example.doctorappointments.model.AppointmentDetails;
+import com.example.doctorappointments.service.AppointmentService;
 import com.example.doctorappointments.service.DatabaseConnection;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -13,81 +17,104 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.control.Button;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.sql.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 public class AppointmentController {
 
     @FXML
-    private TableView<Appointment> AppointmentTableView;
+    private TableView<AppointmentDetails> AppointmentTableView;
 
     @FXML
-    private TableColumn<Appointment, String> PatientNameTableColumn;
+    private TableColumn<AppointmentDetails, String> PatientNameTableColumn;
     @FXML
-    private TableColumn<Appointment, String> AppointmentDateTableColumn;
+    private TableColumn<AppointmentDetails, String> DoctorNameTableColumn;
     @FXML
-    private TableColumn<Appointment, String> AppointmentTimeTableColumn;
+    private TableColumn<AppointmentDetails, String> AppointmentDateTableColumn;
     @FXML
-    private TableColumn<Appointment, String> ServiceTableColumn;
+    private TableColumn<AppointmentDetails, String> AppointmentTimeTableColumn;
     @FXML
-    private TableColumn<Appointment, String> StatusTableColumn;
+    private TableColumn<AppointmentDetails, String> ServiceTableColumn;
     @FXML
-    private TableColumn<Appointment, Void> ActionsTableColumn;
+    private TableColumn<AppointmentDetails, String> StatusTableColumn;
+    @FXML
+    private TableColumn<AppointmentDetails, String> PayeTableColumn;
+
+    @FXML
+    private TableColumn<AppointmentDetails, Void> ActionsTableColumn;
+
+
+
+    @FXML
+    private TextField SearchFieldText;
+
+    @FXML
+    private DatePicker datePicker;
 
 
     @FXML
     private Pagination pagination;
 
-    private ObservableList<Appointment> appointments;
+    private ObservableList<AppointmentDetails> appointments;
     private int rowsPerPage = 14;
+
 
     @FXML
     private void initialize() {
 
-
-        List<Appointment> appointmentsFromDB = Appointment.getAllAppointments();
+        List<AppointmentDetails> appointmentsFromDB = AppointmentService.getAllAppointments();
         appointments = FXCollections.observableArrayList(appointmentsFromDB);
-//        appointments = FXCollections.observableArrayList(
-//                new Appointment(1, 101, 201, Timestamp.valueOf("2025-05-01 12:24:18"), 100.0, 0, "Scheduled", "Checkup"),
-//                new Appointment(2, 102, 202, Timestamp.valueOf("2024-12-05 10:00:00"), 150.0, 1, "Completed", "Routine"),
-//                new Appointment(3, 103, 203, Timestamp.valueOf("2025-06-10 14:00:00"), 200.0, 0, "Scheduled", "Consultation"),
-//                new Appointment(4, 104, 204, Timestamp.valueOf("2024-12-15 09:30:00"), 120.0, 1, "Completed", "Follow-up"),
-//                new Appointment(5, 105, 205, Timestamp.valueOf("2024-12-25 11:00:00"), 130.0, 0, "Scheduled", "Checkup"),
-//                new Appointment(6, 106, 206, Timestamp.valueOf("2025-07-01 15:30:00"), 140.0, 0, "Scheduled", "Routine"),
-//                new Appointment(7, 107, 207, Timestamp.valueOf("2025-07-10 10:15:00"), 110.0, 1, "Completed", "Checkup")
-//        );
 
 
 
-        AppointmentTableView.setItems(appointments);
 
-//        PatientNameTableColumn.setCellValueFactory(cellData -> new SimpleStringProperty("Patient " + cellData.getValue().getIDPatient()));
+
+        DoctorNameTableColumn.setCellValueFactory(cellData -> {
+            AppointmentDetails appointment = cellData.getValue();
+            return new SimpleStringProperty(appointment.getDoctorFullName());
+        });
         PatientNameTableColumn.setCellValueFactory(cellData -> {
-            Appointment appointment = cellData.getValue();
-            String patientFullName = getPatientFullNameById(appointment.getIDPatient());
-            return new SimpleStringProperty(patientFullName);
+            AppointmentDetails appointment = cellData.getValue();
+            return new SimpleStringProperty(appointment.getPatientFullName());
         });
         AppointmentDateTableColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getFormattedDate()));
         AppointmentTimeTableColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getFormattedTime()));
-        ServiceTableColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getService()));
+        ServiceTableColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getServiceName()));
         StatusTableColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getStatus()));
+        PayeTableColumn.setCellFactory(column -> new TableCell<AppointmentDetails, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || getTableRow() == null || getTableRow().getItem() == null) {
+                    setText(null);
+                } else {
+                    AppointmentDetails appointment = getTableRow().getItem();
+                    Integer paye = appointment.getPaye();
+                    if (paye != null) {
+                        setText(paye == 1 ? "✓" : "X");
+                        setStyle("-fx-alignment: CENTER;"); // Center-align the text
+                        setTextFill(paye == 1 ? Color.GREEN : Color.RED); // Optional: Use color to differentiate
+                    } else {
+                        setText(null);
+                    }
+                }
+            }
+        });
 
 
-        pagination.setPageCount((int) Math.ceil(appointments.size() / (double) rowsPerPage));
-        pagination.setCurrentPageIndex(0);
-        pagination.setMaxPageIndicatorCount(5);
-
-        pagination.currentPageIndexProperty().addListener((observable, oldValue, newValue) -> updateTableView(newValue.intValue()));
-        updateTableView(pagination.getCurrentPageIndex());
-
-        ActionsTableColumn.setCellFactory(param -> new TableCell<Appointment, Void>() {
+        ActionsTableColumn.setCellFactory(param -> new TableCell<AppointmentDetails, Void>() {
             private final Button ordonnanceTestButton = new Button("Ordonnance Test");
             private final Button ordonnanceVisiteButton = new Button("Ordonnance Visite");
-            private final Button reporterButton = new Button("Reporter");
-            private final Button annulerButton = new Button("Annuler");
+            private final Button reporterButton = new Button("Reschedule");
+            private final Button annulerButton = new Button("Cancel");
 
             @Override
             public void updateItem(Void item, boolean empty) {
@@ -95,58 +122,113 @@ public class AppointmentController {
                 if (empty) {
                     setGraphic(null);
                 } else {
+                    AppointmentDetails appointment = getTableRow().getItem();
+                    if (appointment != null) {
+                        checkAndUpdateStatus(appointment);
 
-                    ordonnanceTestButton.getStyleClass().add("button-action");
-                    ordonnanceVisiteButton.getStyleClass().add("button-action");
-                    reporterButton.getStyleClass().add("button-action");
-                    annulerButton.getStyleClass().add("button-action");
+                        ordonnanceTestButton.getStyleClass().add("button-action");
+                        ordonnanceVisiteButton.getStyleClass().add("button-action");
+                        reporterButton.getStyleClass().add("button-action");
+                        annulerButton.getStyleClass().add("button-action");
 
-                    ordonnanceTestButton.getStyleClass().add("button-ordonnance");
-                    ordonnanceVisiteButton.getStyleClass().add("button-ordonnance");
-                    reporterButton.getStyleClass().add("button-reporter");
-                    annulerButton.getStyleClass().add("button-annuler");
+                        ordonnanceTestButton.getStyleClass().add("button-ordonnance");
+                        ordonnanceVisiteButton.getStyleClass().add("button-ordonnance");
+                        reporterButton.getStyleClass().add("button-reporter");
+                        annulerButton.getStyleClass().add("button-annuler");
 
-                    HBox hBox = new HBox(10);
-                    hBox.setAlignment(Pos.CENTER);
-                    hBox.getChildren().addAll(ordonnanceTestButton, ordonnanceVisiteButton, reporterButton, annulerButton);
+                        ordonnanceTestButton.setOnAction(event -> handleOrdonnanceTest(appointment));
+                        ordonnanceVisiteButton.setOnAction(event -> handleOrdonnanceVisite(appointment));
+                        reporterButton.setOnAction(event -> handleReporter(appointment));
+                        annulerButton.setOnAction(event -> handleAnnuler(appointment,ordonnanceTestButton,ordonnanceVisiteButton,reporterButton,annulerButton));
 
-                    ordonnanceTestButton.setOnAction(event -> handleOrdonnanceTest(getTableRow().getItem()));
-                    ordonnanceVisiteButton.setOnAction(event -> handleOrdonnanceVisite(getTableRow().getItem()));
-                    reporterButton.setOnAction(event -> handleReporter(getTableRow().getItem()));
-                    annulerButton.setOnAction(event -> handleAnnuler(getTableRow().getItem()));
+                        updateButtonStates(appointment, ordonnanceTestButton, ordonnanceVisiteButton, reporterButton, annulerButton);
 
-                    setGraphic(hBox);
+                        HBox hBox = new HBox(10);
+//                        hBox.setAlignment(Pos.CENTER);
+                        hBox.getChildren().addAll(ordonnanceTestButton, ordonnanceVisiteButton, reporterButton, annulerButton);
+
+                        setGraphic(hBox);
+                    }
                 }
             }
         });
+
+
+        FilteredList<AppointmentDetails> filteredAppointments = new FilteredList<>(appointments,b->true);
+        SearchFieldText.textProperty().addListener((observable, oldValue, newValue) -> {
+            filteredAppointments.setPredicate(appointment -> {
+                if (newValue == null || newValue.isEmpty()) {
+                    return true;  // No filter applied when search field is empty
+                }
+                String searchKeyword = newValue.toLowerCase();
+
+                // Safe null check for ServiceName
+                String serviceName = appointment.getServiceName() != null ? appointment.getServiceName().toLowerCase() : "";
+                return appointment.getPatientFullName().toLowerCase().contains(searchKeyword) ||
+                        appointment.getDoctorFullName().toLowerCase().contains(searchKeyword) ||
+                        appointment.getStatus().toLowerCase().contains(searchKeyword) ||
+                        serviceName.contains(searchKeyword);
+            });
+
+            updatePagination(filteredAppointments);
+        });
+
+        datePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
+            filteredAppointments.setPredicate(appointment -> {
+                if (newValue == null || newValue.toString().isEmpty()) {
+                    return true;
+                }
+                LocalDate selectedDate = newValue;
+                return appointment.getFormattedDate().equals(selectedDate.toString());
+            });
+
+            updatePagination(filteredAppointments);
+        });
+
+        SortedList<AppointmentDetails> sortedAppointments = new SortedList<>(filteredAppointments);
+        sortedAppointments.comparatorProperty().bind(AppointmentTableView.comparatorProperty());
+
+        // Set up pagination
+        pagination.setPageFactory(pageIndex -> {
+            updateTableView(sortedAppointments, pageIndex);
+            return new VBox(); // Dummy node, required by Pagination
+        });
+
+        updatePagination(filteredAppointments);
+
     }
 
-    private String getPatientFullNameById(int patientId) {
-        String fullName = "";
-        String query = "SELECT Nom, Prenom FROM patient WHERE IDPatient = ?";
-        try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setInt(1, patientId);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                String nom = resultSet.getString("Nom");
-                String prenom = resultSet.getString("Prenom");
-                fullName = prenom + " " + nom;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return fullName;
-    }
-
-
-    private void updateTableView(int pageIndex) {
+    private void updateTableView(SortedList<AppointmentDetails> sortedAppointments, int pageIndex) {
         int fromIndex = pageIndex * rowsPerPage;
-        int toIndex = Math.min(fromIndex + rowsPerPage, appointments.size());
-        AppointmentTableView.setItems(FXCollections.observableArrayList(appointments.subList(fromIndex, toIndex)));
+        int toIndex = Math.min(fromIndex + rowsPerPage, sortedAppointments.size());
+        ObservableList<AppointmentDetails> pageData = FXCollections.observableArrayList(sortedAppointments.subList(fromIndex, toIndex));
+        AppointmentTableView.setItems(pageData);
     }
 
-    private void handleOrdonnanceTest(Appointment appointment) {
+//    private void updatePagination(FilteredList<AppointmentDetails> filteredAppointments) {
+//        int totalItems = filteredAppointments.size();
+//        int totalPages = (int) Math.ceil((double) totalItems / rowsPerPage);
+//
+//        pagination.setPageCount(totalPages > 0 ? totalPages : 1);
+//        pagination.setCurrentPageIndex(0);
+//        updateTableView(new SortedList<>(filteredAppointments), pagination.getCurrentPageIndex());
+//    }
+
+    private void updatePagination(FilteredList<AppointmentDetails> filteredAppointments) {
+        int totalItems = filteredAppointments.size();
+        int totalPages = (int) Math.ceil((double) totalItems / rowsPerPage);
+
+        pagination.setPageCount(totalPages > 0 ? totalPages : 1);
+        int currentPageIndex = pagination.getCurrentPageIndex();
+        updateTableView(new SortedList<>(filteredAppointments), currentPageIndex);
+        pagination.setCurrentPageIndex(currentPageIndex);
+    }
+
+
+
+
+
+    private void handleOrdonnanceTest(AppointmentDetails appointment) {
         System.out.println("Ordonnance Test clicked for: " + appointment.getIDPatient());
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/doctorappointments/prescription-test-form.fxml"));
@@ -156,7 +238,6 @@ public class AppointmentController {
             stage.setScene(new Scene(root, 1100, 700));
             stage.show();
 
-            // Pass the appointment ID to the next interface
             TestFormController controller = fxmlLoader.getController();
             controller.setAppointmentID(appointment.getIDAppointment());
         } catch (IOException e) {
@@ -164,7 +245,7 @@ public class AppointmentController {
         }
     }
 
-    private void handleOrdonnanceVisite(Appointment appointment) {
+    private void handleOrdonnanceVisite(AppointmentDetails appointment) {
         System.out.println("Ordonnance Visite clicked for: " + appointment.getIDPatient());
 
         try {
@@ -176,7 +257,6 @@ public class AppointmentController {
             stage.setScene(new Scene(root, 1100, 700));
             stage.show();
 
-            // Pass the appointment ID to the next interface
             MedicationFormController controller = fxmlLoader.getController();
             controller.setAppointmentID(appointment.getIDAppointment());
         } catch (IOException e) {
@@ -184,14 +264,58 @@ public class AppointmentController {
         }
     }
 
-    private void handleReporter(Appointment appointment) {
+    private void handleReporter(AppointmentDetails appointment) {
         System.out.println("Reporter clicked for: " + appointment.getIDPatient());
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/doctorappointments/Postpone-Appointment.fxml"));
+            Parent root = fxmlLoader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Postpone appointment " + appointment.getIDPatient());
+            stage.setScene(new Scene(root, 1100, 700));
+            stage.show();
 
+            PostponeAppointmentController controller = fxmlLoader.getController();
+            controller.setInterfaceDetails(
+                    appointment.getIDAppointment(),
+                    appointment.getAppointmentDate(),
+                    appointment.getDoctorFullName(),
+                    appointment.getPatientFullName()
+            );
+            controller.setCallback(() -> {
+                refreshAppointments();
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    private void handleAnnuler(Appointment appointment) {
-        System.out.println("Annuler clicked for: " + appointment.getIDPatient());
+
+    private void handleAnnuler(AppointmentDetails appointment, Button ordonnanceTestButton, Button ordonnanceVisiteButton, Button reporterButton, Button annulerButton) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirmation");
+        alert.setHeaderText("Cancel Appointment");
+        alert.setContentText("Are you sure you would like to cancel this appointment?");
+
+        ButtonType confirmButton = new ButtonType("Yes");
+        ButtonType cancelButton = new ButtonType("No", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        alert.getButtonTypes().setAll(confirmButton, cancelButton);
+
+        alert.showAndWait().ifPresent(response -> {
+            if (response == confirmButton) {
+                appointment.setStatus("canceled");
+                AppointmentService.cancelAppointment(appointment.getIDAppointment());
+                int doctorId = appointment.getIDDoctor();
+                String formattedDate = appointment.getFormattedDate();
+                LocalDate appointmentDate = LocalDate.parse(formattedDate);
+                String appointmentTime = appointment.getFormattedTime();
+                AppointmentService.updateDoctorAvailability(doctorId, appointmentDate, appointmentTime, true);
+                refreshTable();
+                updateButtonStates(appointment, ordonnanceTestButton, ordonnanceVisiteButton, reporterButton, annulerButton);
+            }
+        });
     }
+
 
     public void handleCreateMedicalPrescription() {
         try {
@@ -218,4 +342,86 @@ public class AppointmentController {
             e.printStackTrace();
         }
     }
+
+
+
+    public void refreshTable() {
+        AppointmentTableView.refresh();
+    }
+
+
+    private void checkAndUpdateStatus(AppointmentDetails appointment) {
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        LocalDateTime appointmentDateTime = appointment.getAppointmentDate().toLocalDateTime();
+        LocalDateTime oneHourAfterAppointment = appointmentDateTime.plusHours(1);
+
+        if ("canceled".equalsIgnoreCase(appointment.getStatus())) {
+            return;
+        }
+        if (currentDateTime.isAfter(oneHourAfterAppointment)) {
+            appointment.setStatus("completed");
+        } else if (currentDateTime.isBefore(appointmentDateTime) || currentDateTime.equals(appointmentDateTime)) {
+            appointment.setStatus("scheduled");
+        } else if (currentDateTime.isAfter(appointmentDateTime) && currentDateTime.isBefore(oneHourAfterAppointment)) {
+            appointment.setStatus("pending");
+        }
+    }
+
+
+
+    private void updateButtonStates(AppointmentDetails appointment, Button ordonnanceTestButton, Button ordonnanceVisiteButton, Button reporterButton, Button annulerButton) {
+        String status = appointment.getStatus();
+        switch (status) {
+            case "completed":
+                ordonnanceTestButton.setDisable(false);
+                ordonnanceVisiteButton.setDisable(false);
+                reporterButton.setDisable(true);
+                annulerButton.setDisable(true);
+                break;
+            case "pending":
+                ordonnanceTestButton.setDisable(false);
+                ordonnanceVisiteButton.setDisable(false);
+                reporterButton.setDisable(true);
+                annulerButton.setDisable(true);
+                break;
+            case "scheduled":
+                ordonnanceTestButton.setDisable(true);
+                ordonnanceVisiteButton.setDisable(true);
+                reporterButton.setDisable(false);
+                annulerButton.setDisable(false);
+                break;
+            case "canceled":
+                ordonnanceTestButton.setDisable(true);
+                ordonnanceVisiteButton.setDisable(true);
+                reporterButton.setDisable(true);
+                annulerButton.setDisable(true);
+                break;
+            default:
+                ordonnanceTestButton.setDisable(true);
+                ordonnanceVisiteButton.setDisable(true);
+                reporterButton.setDisable(true);
+                annulerButton.setDisable(true);
+        }
+    }
+
+
+
+
+
+//    private void refreshAppointments() {
+//        // Get the updated list of appointments from the database or service
+//        List<AppointmentDetails> appointmentsFromDB = AppointmentService.getAllAppointments();
+//        appointments.clear(); // Clear current appointments
+//        appointments.addAll(appointmentsFromDB); // Add the updated appointments
+//    }
+
+
+    private void refreshAppointments() {
+        List<AppointmentDetails> appointmentsFromDB = AppointmentService.getAllAppointments();
+        appointments.clear();
+        appointments.addAll(appointmentsFromDB);
+        updatePagination(new FilteredList<>(appointments, b -> true));
+    }
 }
+
+
