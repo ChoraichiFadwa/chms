@@ -8,6 +8,7 @@ import javafx.collections.ObservableList;
 
 import java.sql.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 public class booking {
@@ -29,26 +30,46 @@ public class booking {
     @FXML
     private Button createAppointmentButton; // Button to create appointment
     private int patientId;
+    private int selectedServiceId;
 
     @FXML
     public void initialize() {
+        loadServices();
         loadSpecialities();
+
 
         specialityComboBox.setOnAction(event -> {
             String selectedSpeciality = specialityComboBox.getSelectionModel().getSelectedItem();
             if (selectedSpeciality != null) {
                 loadDoctors(selectedSpeciality);
                 doctorComboBox.getSelectionModel().clearSelection(); // Reset doctor selection
-                serviceComboBox.getItems().clear(); // Clear services when speciality changes
             }
         });
 
         serviceComboBox.setOnAction(event -> {
-            String selectedService = serviceComboBox.getSelectionModel().getSelectedItem();
-            if (selectedService != null) {
-                System.out.println("Selected Service: " + selectedService);
+            String selectedServiceName = serviceComboBox.getSelectionModel().getSelectedItem();
+            if (selectedServiceName != null) {
+                // Fetch IDService from the database based on selected NameService
+                String query = "SELECT IDService FROM service WHERE NameService = ?";
+                try (Connection connection = DatabaseConnection.getConnection();
+                     PreparedStatement statement = connection.prepareStatement(query)) {
+
+                    statement.setString(1, selectedServiceName);
+                    try (ResultSet resultSet = statement.executeQuery()) {
+                        if (resultSet.next()) {
+                            int selectedServiceId = resultSet.getInt("IDService");
+                            this.selectedServiceId=selectedServiceId;
+                            System.out.println("Selected Service ID: " + selectedServiceId);
+                            // You can now use the IDService for further processing
+                        }
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    showAlert(Alert.AlertType.ERROR, "Database Error", "Failed to retrieve service ID. Please try again.");
+                }
             }
         });
+
 
         doctorComboBox.setOnAction(event -> {
             String selectedDoctorName = doctorComboBox.getSelectionModel().getSelectedItem();
@@ -76,6 +97,27 @@ public class booking {
                 }
             }
         });
+    }
+
+    @FXML
+    public void loadServices() {
+        String query = "SELECT NameService FROM service";
+        serviceComboBox.getItems().clear();
+        ObservableList<String> services = FXCollections.observableArrayList();
+
+        try (Connection connection = DatabaseConnection.getConnection();
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(query)) {
+
+            while (resultSet.next()) {
+                services.add(resultSet.getString("NameService"));
+            }
+
+            serviceComboBox.setItems(services);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Database Error", "Failed to load services. Please try again.");
+        }
     }
 
     @FXML
@@ -137,11 +179,12 @@ public class booking {
     @FXML
     public void createAppointment() {
         String fullName = fullNameField.getText();
-        String phoneNumber = phoneNumberField.getText();
         String selectedSpeciality = specialityComboBox.getSelectionModel().getSelectedItem();
         String selectedDoctorName = doctorComboBox.getSelectionModel().getSelectedItem();
         LocalDate selectedDate = appointmentDatePicker.getValue();
         String selectedHour = hoursComboBox.getSelectionModel().getSelectedItem();
+
+
 
         if (fullName.isEmpty() || selectedSpeciality == null || selectedDoctorName == null || selectedDate == null || selectedHour == null) {
             showAlert(Alert.AlertType.ERROR, "Form Incomplete", "Please fill all the fields before submitting.");
@@ -165,9 +208,22 @@ public class booking {
         String doctorLastName = doctorNameParts[0];
         String doctorFirstName = doctorNameParts[1];
 
+        // Convert selectedHour to LocalTime
+        //String[] hourParts = selectedHour.split(":");
+        //LocalTime selectedTime = LocalTime.of(Integer.parseInt(hourParts[0]), Integer.parseInt(hourParts[1]));
+
+
+        String[] times = selectedHour.split(" - ");
+        String startTimeString = times[0].trim();  // "08:00"
+        String endTimeString = times[1].trim();
+        LocalTime selectedTime = LocalTime.parse(startTimeString);
+        // Combine the date and time into LocalDateTime
+        LocalDateTime appointmentDateTime = LocalDateTime.of(selectedDate, selectedTime);
+
+
         String insertQuery = """
-        INSERT INTO appointment (IDPatient, IDDoctor, AppointmentDate, AppTime, Price, Paye, Status, Service)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO appointment (IDPatient, IDDoctor, AppointmentDate, Price, Paye, Status, IDService)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
     """;
 
         try (Connection connection = DatabaseConnection.getConnection();
@@ -185,20 +241,20 @@ public class booking {
                 return;
             }
 
-            int hour = Integer.parseInt(selectedHour.split(":")[0]);
-            int minute = Integer.parseInt(selectedHour.split(":")[1]);
+            //int hour = Integer.parseInt(selectedHour.split(":")[0]);
+            //int minute = Integer.parseInt(selectedHour.split(":")[1]);
 
             statement.setInt(1, this.patientId);
             statement.setInt(2, doctorId);
-            statement.setDate(3, Date.valueOf(selectedDate));
-            statement.setTime(4, Time.valueOf(LocalTime.of(hour, minute)));
-            statement.setDouble(5, 1000.0);
-            statement.setInt(6, 0);
-            statement.setString(7, "scheduled");
-            statement.setString(8, "selectedService");
+            statement.setTimestamp(3, Timestamp.valueOf(appointmentDateTime));
+            statement.setDouble(4, 990099.0);
+            statement.setInt(5, 0);
+            statement.setString(6, "scheduled");
+            statement.setInt(7, selectedServiceId);
 
             int rowsAffected = statement.executeUpdate();
             if (rowsAffected > 0) {
+                markTimeSlotAsUnavailable(appointmentDateTime, doctorId);
                 showAlert(Alert.AlertType.INFORMATION, "Appointment Created", "Your appointment has been scheduled successfully.");
             } else {
                 showAlert(Alert.AlertType.ERROR, "Error", "Failed to schedule the appointment. Please try again.");
@@ -209,6 +265,39 @@ public class booking {
             showAlert(Alert.AlertType.ERROR, "Database Error", "Error connecting to the database. Please try again.");
         }
     }
+    // Method to mark the selected time slot as unavailable
+    private void markTimeSlotAsUnavailable(LocalDateTime appointmentDateTime, int doctorId) {
+// Extract date and time from appointmentDateTime
+        LocalDate appointmentDate = appointmentDateTime.toLocalDate();
+        LocalTime appointmentTime = appointmentDateTime.toLocalTime();
+
+        String query = """
+        UPDATE planning
+        SET availability = 0
+        WHERE Date = ? AND Date_Start = ? AND IDDoctor = ?
+    """;
+
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+
+            // Set the parameters for the query
+            statement.setDate(1, Date.valueOf(appointmentDate));      // Compare Date column
+            statement.setTime(2, Time.valueOf(appointmentTime));      // Compare Date_Start column
+            statement.setInt(3, doctorId);                            // Compare id_doctor
+
+            // Execute the update
+            int rowsAffected = statement.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("Planning availability updated to 0.");
+            } else {
+                System.out.println("No matching record found to update availability.");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Database Error", "Failed to update availability.");
+        }
+    }
+
 
     private int getDoctorIdByName(String firstName, String lastName) {
         int doctorId = -1;

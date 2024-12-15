@@ -9,7 +9,7 @@ import java.io.IOException;
 public class MainApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("doctors-list.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("booking.fxml"));
         //doctor-update-form appointment-list prescription-test-form
         Scene scene = new Scene(fxmlLoader.load(), 1100, 700);
         stage.setTitle("Appointment Management!");
