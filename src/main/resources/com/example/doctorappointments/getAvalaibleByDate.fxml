@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="534.0" prefWidth="824.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.doctorappointments.controller.AvailableDoctorsController">
+    <DatePicker fx:id="datePicker" layoutX="106.0" layoutY="56.0" promptText="Entrez la date" styleClass="bouton" stylesheets="@style.css" />
+    <Button fx:id="searchButton" layoutX="365.0" layoutY="82.0" onAction="#handleSearchButtonClick" styleClass="bouton" stylesheets="@style.css" text="Rechercher" />
+    <!-- ListView pour afficher la disponibilité des médecins -->
+    <ListView fx:id="availabilityListView" layoutX="53.0" layoutY="118.0" prefHeight="350.0" prefWidth="700.0" />
+   <TextField fx:id="specialtyTextField" layoutX="533.0" layoutY="56.0" promptText="Définir la Spécialité" stylesheets="@style.css" />
+
+</AnchorPane>

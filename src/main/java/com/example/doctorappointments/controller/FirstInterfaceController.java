@@ -4,8 +4,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -50,7 +48,7 @@ public class FirstInterfaceController {
         imageView4.setImage(image4);
         Image image5 = new Image(getClass().getResource("/images/bookAppointment1.png").toExternalForm());
         imageView5.setImage(image5);
-        Image image6 = new Image(getClass().getResource("/images/doctor.png").toExternalForm());
+        Image image6 = new Image(getClass().getResource("/images/doctor2.png").toExternalForm());
         imageView6.setImage(image6);
     }
 
@@ -62,7 +60,6 @@ public class FirstInterfaceController {
             Stage stage = new Stage();
             stage.setTitle("Appointments List");
             stage.setScene(new Scene(root, 1100, 700));
-
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();
@@ -71,6 +68,17 @@ public class FirstInterfaceController {
 
     @FXML
     private void handleAvailabilityClick() throws IOException {
+
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/doctorappointments/Availability.fxml"));
+            Parent root = fxmlLoader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Manage Availability");
+            stage.setScene(new Scene(root, 1100, 700));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 
