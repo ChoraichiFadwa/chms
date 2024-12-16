@@ -5,10 +5,7 @@ import com.example.doctorappointments.model.Speciality;
 import com.example.doctorappointments.service.DoctorService;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 
@@ -44,28 +41,14 @@ public class DoctorUpdateFormController implements Initializable {
 
     private DoctorsList doctorsListController; // Reference to DoctorsList controller
 
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         loadSpecialities();
         //loadInitialData();
     }
-    public static void openUpdateForm(int doctorID) {
-        try {
-            FXMLLoader loader = new FXMLLoader(DoctorUpdateFormController.class.getResource("/path/to/DoctorUpdateForm.fxml"));
-            Parent root = loader.load();
 
-            // Pass the doctor ID to the controller
-            DoctorUpdateFormController controller = loader.getController();
-            controller.setDoctorID(doctorID);
 
-            Stage stage = new Stage();
-            stage.setTitle("Update Doctor");
-            stage.setScene(new Scene(root));
-            stage.show();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
     public void setDoctorID(int doctorID) {
         this.doctorID = doctorID;
         loadInitialData();
@@ -73,7 +56,7 @@ public class DoctorUpdateFormController implements Initializable {
 
     private void loadInitialData() {
         ObservableList<Doctor> doctor = DoctorService.getDoctorDetails(doctorID);
-        System.out.println(doctor);
+
 
         if (doctor.isEmpty()) {
             showAlert(Alert.AlertType.WARNING, "No doctor found with ID: " + doctorID);
@@ -87,6 +70,7 @@ public class DoctorUpdateFormController implements Initializable {
         adresseField.setText(doctor.getFirst().getAdresse());
 
         String speciality = null;
+
         for (Map.Entry<String, Integer> entry : specialityMap.entrySet()) {
             if (entry.getValue().equals(doctor.getFirst().getIdSpeciality())) {
                 speciality = entry.getKey();
@@ -103,8 +87,8 @@ public class DoctorUpdateFormController implements Initializable {
 
 
         for (Speciality speciality : specialities) {
-            combo_speciality.getItems().add(speciality.getNomSpeciality());
-            specialityMap.put(speciality.getNomSpeciality(), speciality.getIdSpeciality());
+            combo_speciality.getItems().add(speciality.getIdSpeciality()+ " - " + speciality.getNomSpeciality());
+            specialityMap.put(speciality.getIdSpeciality()+ " - " + speciality.getNomSpeciality(), speciality.getIdSpeciality());
         }
 
     }
@@ -133,22 +117,24 @@ public class DoctorUpdateFormController implements Initializable {
             return;
         }
 
-        // Add logic to handle the form submission
-        System.out.println("Speciality: " + speciality);
-        System.out.println("Speciality ID: " + specialityId);
-        System.out.println("Nom: " + nom);
-        System.out.println("Prenom: " + prenom);
-        System.out.println("Tel: " + tel);
-        System.out.println("Adresse: " + adresse);
 
         boolean done= DoctorService.updateDoctor(doctorID,specialityId, nom, prenom, tel, adresse);
         if (done) {
-            showAlert(Alert.AlertType.INFORMATION, "Doctor update successfully!");
+            showAlert(Alert.AlertType.INFORMATION, "Doctor updated successfully!");
+            // Close the update form
+            Stage stage = (Stage) title.getScene().getWindow();
+            stage.close();
+            // Refresh doctor data in DoctorsList
+            if (doctorsListController != null) {
+                doctorsListController.refreshDoctorData();
+            }
         }
         else {
-            showAlert(Alert.AlertType.ERROR, "Error in update the doctor");
+            showAlert(Alert.AlertType.ERROR, "Failed to update doctor information. Please try again.");
         }
     }
+
+
     public void setDoctorsListController(DoctorsList doctorsListController) {
         this.doctorsListController = doctorsListController;
     }
