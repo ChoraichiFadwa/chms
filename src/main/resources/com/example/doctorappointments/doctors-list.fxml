@@ -12,7 +12,7 @@
 
 
     <children>
-        <Button fx:id="filterButton" layoutX="570.0" layoutY="21.0" text="Filter Specialty" style="-fx-background-color: #5A9BD5; -fx-text-fill: white; -fx-border-radius: 7px;" AnchorPane.leftAnchor="520.0"/>
+        <Button fx:id="filterButton" layoutX="570.0" layoutY="21.0" text="Filter By Specialty" style="-fx-background-color: #5A9BD5; -fx-text-fill: white; -fx-border-radius: 7px;" AnchorPane.leftAnchor="520.0"/>
 
         <Button fx:id="addButton" layoutX="909.0" layoutY="17.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="161.0" style="-fx-background-color: #5A9BD5; -fx-text-fill: #fff;" text="Add New Doctor" onAction="#handleNewDoctor"/>
 
@@ -22,7 +22,7 @@
                 <TableColumn fx:id="specialityTableColumn" text="Specialty" resizable="true" />
                 <TableColumn fx:id="telTableColumn" text="Phone" resizable="true" />
                 <TableColumn fx:id="adresseTableColumn" text="Address" resizable="true" />
-                <TableColumn fx:id="ActionsTableColumn" editable="false" prefWidth="460.0" text="Actions"/>
+                <!-- <TableColumn fx:id="ActionsTableColumn" editable="false" prefWidth="460.0" text="Actions"/> -->
             </columns>
         </TableView>
 

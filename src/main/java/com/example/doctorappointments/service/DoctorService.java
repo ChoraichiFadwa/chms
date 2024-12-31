@@ -136,4 +136,35 @@ public class DoctorService {
         }
         return doctors;
     }
+
+    public static boolean deleteDoctor(int id) {
+        String deleteAppointmentsSql = "DELETE FROM appointment WHERE IDDoctor = ?";
+        String deleteDoctorSql = "DELETE FROM doctor WHERE IDDoctor = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            conn.setAutoCommit(false); // Start transaction
+
+            try (PreparedStatement deleteAppointmentsStmt = conn.prepareStatement(deleteAppointmentsSql);
+                 PreparedStatement deleteDoctorStmt = conn.prepareStatement(deleteDoctorSql)) {
+
+                deleteAppointmentsStmt.setInt(1, id);
+                deleteAppointmentsStmt.executeUpdate();
+
+                deleteDoctorStmt.setInt(1, id);
+                int affectedRows = deleteDoctorStmt.executeUpdate();
+
+                conn.commit(); // Commit transaction
+                return affectedRows > 0;
+
+            } catch (SQLException e) {
+                conn.rollback(); // Rollback transaction on error
+                System.err.println("Error deleting doctor: " + e.getMessage());
+                return false;
+            }
+        } catch (SQLException e) {
+            System.err.println("Error deleting doctor: " + e.getMessage());
+            return false;
+        }
+    }
+
 }

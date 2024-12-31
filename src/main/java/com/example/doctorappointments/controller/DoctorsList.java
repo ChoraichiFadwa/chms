@@ -13,6 +13,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.control.ChoiceDialog;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -86,25 +87,61 @@ public class DoctorsList {
         ActionsTableColumn = new TableColumn<>("Actions");
         doctorTableView.getColumns().add(ActionsTableColumn);
 
+
         ActionsTableColumn.setCellFactory(param -> new TableCell<Doctor, Void>() {
+            /*private final Button updateDoctorButton = new Button("Update");
+            private final Button deleteDoctorButton = new Button("Delete");
+            private final HBox buttons = new HBox(updateDoctorButton, deleteDoctorButton);*/
             private final Button updateDoctorButton = new Button("Update");
+            private final Button deleteDoctorButton = new Button("Delete");
+            private final HBox buttons = new HBox(10, updateDoctorButton, deleteDoctorButton); // Add spacing between buttons
+
+
+
             public void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
                 if (empty || getIndex() < 0 || getIndex() >= getTableView().getItems().size()) {
                     setGraphic(null);
                 } else {
                     Doctor doctor = getTableView().getItems().get(getIndex());
+                    updateDoctorButton.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white;"); // Green update button
+                    deleteDoctorButton.setStyle("-fx-background-color: #f44336; -fx-text-fill: white;"); // Red delete button
+
                     updateDoctorButton.setOnAction(event -> handleDoctorUpdate(doctor));
-                    setGraphic(updateDoctorButton);
+                    deleteDoctorButton.setOnAction(event -> handleDoctorDelete(doctor));
+                    setGraphic(buttons);
                 }
             }
-
         });
 
 
 
         doctorTableView.setItems(doctors);
     }
+
+    private void handleDoctorDelete(Doctor doctor) {
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Delete Doctor");
+        alert.setHeaderText("This will delete the doctor and all associated appointments. Proceed?");
+        alert.setContentText("Doctor: " + doctor.getPrenom() + " " + doctor.getNom());
+
+        alert.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                boolean res = DoctorService.deleteDoctor(doctor.getIdDoctor());
+                if (res) {
+                    refreshDoctorData();
+                } else {
+                    Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+                    errorAlert.setTitle("Error");
+                    errorAlert.setHeaderText("Failed to delete doctor");
+                    errorAlert.setContentText("An error occurred while trying to delete the doctor.");
+                    errorAlert.showAndWait();
+                }
+            }
+        });
+    }
+
     private void handleDoctorUpdate(Doctor doctor) {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/doctorappointments/doctor-update-form.fxml"));

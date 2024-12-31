@@ -62,21 +62,21 @@
             <Label text="Appointment Information"
                    style="-fx-font-size: 19px; -fx-text-fill: #101023; -fx-font-weight: bold;"/>
             <VBox spacing="10" alignment="CENTER_LEFT">
-                <HBox spacing="10" alignment="CENTER_LEFT">
+                <HBox spacing="1" alignment="CENTER_LEFT">
                     <Label text="Speciality"
                            style="-fx-font-size: 16px; -fx-text-fill: #424088; -fx-padding: 10px; -fx-font-weight: bold;"/>
                     <ComboBox fx:id="specialityComboBox" promptText="Select Speciality"
                               style="-fx-background-color: #FFFFFF; -fx-border-color: #cccccc; -fx-border-radius: 5px; -fx-pref-width: 250px; -fx-padding: 6px; -fx-font-size: 14px;"/>
                 </HBox>
 
-                <HBox spacing="10" alignment="CENTER_LEFT">
+                <HBox spacing="20" alignment="CENTER_LEFT">
                     <Label text="Doctor"
                            style="-fx-font-size: 16px; -fx-text-fill: #424088; -fx-padding: 10px; -fx-font-weight: bold;"/>
                     <ComboBox fx:id="doctorComboBox" promptText="Select Doctor"
                               style="-fx-background-color: #FFFFFF; -fx-border-color: #cccccc; -fx-border-radius: 5px; -fx-pref-width: 250px; -fx-padding: 6px; -fx-font-size: 14px;"/>
                 </HBox>
 
-                <HBox spacing="10" alignment="CENTER_LEFT">
+                <HBox spacing="20" alignment="CENTER_LEFT">
                     <Label text="Service"
                            style="-fx-font-size: 16px; -fx-text-fill: #424088; -fx-padding: 10px; -fx-font-weight: bold;"/>
                     <ComboBox fx:id="serviceComboBox" promptText="Select Service"
@@ -103,6 +103,13 @@
                 <ComboBox fx:id="hoursComboBox" promptText="Select Hour"
                           style="-fx-background-color: #FFFFFF; -fx-border-color: #cccccc; -fx-border-radius: 5px; -fx-pref-width: 300px; -fx-padding: 8px; -fx-font-size: 16px;"/>
             </HBox>
+            <HBox spacing="40" alignment="CENTER_LEFT">
+                <Label text="Price"
+                       style="-fx-font-size: 16px; -fx-text-fill: #424088; -fx-padding: 10px; -fx-font-weight: bold;"/>
+                <TextField fx:id="priceField"
+                           style="-fx-background-color: #FFFFFF; -fx-border-color: #cccccc; -fx-border-radius: 5px; -fx-pref-width: 150px; -fx-padding: 8px; -fx-font-size: 16px;"/>
+            </HBox>
+
 
         </VBox>
 

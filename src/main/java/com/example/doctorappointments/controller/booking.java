@@ -31,6 +31,9 @@ public class booking {
     private Button createAppointmentButton; // Button to create appointment
     private int patientId;
     private int selectedServiceId;
+    @FXML
+    private TextField priceField;
+
 
     @FXML
     public void initialize() {
@@ -183,7 +186,8 @@ public class booking {
         String selectedDoctorName = doctorComboBox.getSelectionModel().getSelectedItem();
         LocalDate selectedDate = appointmentDatePicker.getValue();
         String selectedHour = hoursComboBox.getSelectionModel().getSelectedItem();
-
+        String priceText = priceField.getText();
+        double price = Double.parseDouble(priceText);
 
 
         if (fullName.isEmpty() || selectedSpeciality == null || selectedDoctorName == null || selectedDate == null || selectedHour == null) {
@@ -247,7 +251,7 @@ public class booking {
             statement.setInt(1, this.patientId);
             statement.setInt(2, doctorId);
             statement.setTimestamp(3, Timestamp.valueOf(appointmentDateTime));
-            statement.setDouble(4, 990099.0);
+            statement.setDouble(4, price);
             statement.setInt(5, 0);
             statement.setString(6, "scheduled");
             statement.setInt(7, selectedServiceId);
