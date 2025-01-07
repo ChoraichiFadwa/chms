@@ -1,6 +1,8 @@
 package com.example.doctorappointments.controller;
 
 import com.example.doctorappointments.service.DatabaseConnection;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
@@ -19,13 +21,41 @@ public class AvailableDoctorsController {
     @FXML
     private DatePicker datePicker;  // Sélecteur de date
 
+    //@FXML
+    //private TextField specialtyTextField;  // Champ pour la spécialité (facultatif)
+
     @FXML
-    private TextField specialtyTextField;  // Champ pour la spécialité (facultatif)
+    private ComboBox<String> specialtyComboBox; // Champ pour la spécialité (facultatif)
+
+    @FXML
+    public void initialize() {
+        specialtyComboBox();
+    }
+
+    private void specialtyComboBox() {
+        try (Connection connection = DatabaseConnection.getConnection()) {
+            String query = "SELECT DISTINCT NomSpeciality FROM Speciality";
+            PreparedStatement statement = connection.prepareStatement(query);
+            ResultSet resultSet = statement.executeQuery();
+
+            ObservableList<String> specialties = FXCollections.observableArrayList();
+            while (resultSet.next()) {
+                specialties.add(resultSet.getString("NomSpeciality"));
+            }
+
+            specialtyComboBox.setItems(specialties);
+            statement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert("Erreur lors du chargement des spécialités.", Alert.AlertType.ERROR);
+        }
+    }
+
 
     @FXML
     private void handleSearchButtonClick() {
         LocalDate selectedDate = datePicker.getValue();
-        String specialty = specialtyTextField.getText().trim();  // Récupérer la spécialité
+        String specialty = specialtyComboBox.getValue();  // Récupérer la spécialité
 
         if (selectedDate == null) {
             // Afficher un message d'alerte si la date n'est pas sélectionnée
@@ -50,7 +80,7 @@ public class AvailableDoctorsController {
                     "WHERE p.Date = ?";
 
             // Ajouter la condition de spécialité si elle est fournie
-            if (!specialty.isEmpty()) {
+            if (specialty != null && !specialty.isEmpty()) {
                 query += " AND s.NomSpeciality LIKE ?";
             }
 
@@ -58,7 +88,7 @@ public class AvailableDoctorsController {
             statement.setDate(1, Date.valueOf(selectedDate));  // Paramètre pour la date
 
             // Ajouter le paramètre spécialité si nécessaire
-            if (!specialty.isEmpty()) {
+            if (specialty != null && !specialty.isEmpty()) {
                 statement.setString(2, "%" + specialty + "%");  // Recherche partielle
             }
 
