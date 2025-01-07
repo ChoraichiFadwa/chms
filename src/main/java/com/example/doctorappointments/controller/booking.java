@@ -187,10 +187,10 @@ public class booking {
         LocalDate selectedDate = appointmentDatePicker.getValue();
         String selectedHour = hoursComboBox.getSelectionModel().getSelectedItem();
         String priceText = priceField.getText();
-        double price = Double.parseDouble(priceText);
 
 
-        if (fullName.isEmpty() || selectedSpeciality == null || selectedDoctorName == null || selectedDate == null || selectedHour == null) {
+
+        if (fullName.isEmpty() || selectedSpeciality == null || selectedDoctorName == null || selectedDate == null || selectedHour == null || priceField == null) {
             showAlert(Alert.AlertType.ERROR, "Form Incomplete", "Please fill all the fields before submitting.");
             return;
         }
@@ -224,6 +224,15 @@ public class booking {
         // Combine the date and time into LocalDateTime
         LocalDateTime appointmentDateTime = LocalDateTime.of(selectedDate, selectedTime);
 
+        double price = 0;
+        try {
+            price = Double.parseDouble(priceText); // Parsing price
+            // Proceed with further logic, e.g., saving the appointment
+        } catch (NumberFormatException e) {
+            // Handle invalid price input
+            showAlert(Alert.AlertType.ERROR, "Invalid Price", "Please enter a valid price.");
+            return; // Stop further execution if price is invalid
+        }
 
         String insertQuery = """
         INSERT INTO appointment (IDPatient, IDDoctor, AppointmentDate, Price, Paye, Status, IDService)
