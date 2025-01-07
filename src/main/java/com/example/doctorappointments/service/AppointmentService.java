@@ -49,7 +49,8 @@ public class AppointmentService {
                 + "FROM appointment a "
                 + "LEFT JOIN service s ON a.IDService = s.IDService "
                 + "JOIN patient p ON a.IDPatient = p.IDPatient "
-                + "JOIN doctor d ON a.IDDoctor = d.IDDoctor";
+                + "JOIN doctor d ON a.IDDoctor = d.IDDoctor "
+                + "ORDER BY a.IDAppointment DESC";
 
         try (Connection connection = DatabaseConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {

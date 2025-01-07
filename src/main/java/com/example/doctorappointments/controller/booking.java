@@ -187,23 +187,69 @@ public class booking {
         LocalDate selectedDate = appointmentDatePicker.getValue();
         String selectedHour = hoursComboBox.getSelectionModel().getSelectedItem();
         String priceText = priceField.getText();
-        double price = Double.parseDouble(priceText);
 
-
-        if (fullName.isEmpty() || selectedSpeciality == null || selectedDoctorName == null || selectedDate == null || selectedHour == null) {
-            showAlert(Alert.AlertType.ERROR, "Form Incomplete", "Please fill all the fields before submitting.");
+        // Vérification si tous les champs sont vides
+        if ((fullName == null || fullName.isEmpty()) &&
+                (selectedSpeciality == null) &&
+                (selectedDoctorName == null) &&
+                (selectedDate == null) &&
+                (selectedHour == null || selectedHour.isEmpty()) &&
+                (priceText == null || priceText.isEmpty())) {
+            showAlert(Alert.AlertType.ERROR, "Form Incomplete", "All fields are empty. Please fill in the form.");
             return;
         }
 
+        // Vérifications individuelles
+        if (fullName == null || fullName.isEmpty()) {
+            showAlert(Alert.AlertType.ERROR, "Invalid Full Name", "Full name is required.");
+            return;
+        }
+
+        if (selectedSpeciality == null) {
+            showAlert(Alert.AlertType.ERROR, "Invalid Speciality", "Please select a speciality.");
+            return;
+        }
+
+        if (selectedDoctorName == null) {
+            showAlert(Alert.AlertType.ERROR, "Invalid Doctor", "Please select a doctor.");
+            return;
+        }
+
+        if (selectedDate == null) {
+            showAlert(Alert.AlertType.ERROR, "Invalid Date", "Please select a date for the appointment.");
+            return;
+        }
+
+        if (selectedHour == null || selectedHour.isEmpty()) {
+            showAlert(Alert.AlertType.ERROR, "Invalid Time", "Please select a time slot.");
+            return;
+        }
+
+        if (priceText == null || priceText.isEmpty()) {
+            showAlert(Alert.AlertType.ERROR, "Invalid Price", "Price is required.");
+            return;
+        }
+
+        // Vérification que le nom complet contient au moins un prénom et un nom
         String[] nameParts = fullName.split(" ");
         if (nameParts.length < 2) {
-            showAlert(Alert.AlertType.ERROR, "Invalid Name", "Please enter both first and last name.");
+            showAlert(Alert.AlertType.ERROR, "Invalid Full Name", "Please enter both first and last name.");
+            return;
+        }
+
+        // Conversion du prix en double avec gestion des erreurs
+        double price;
+        try {
+            price = Double.parseDouble(priceText);
+        } catch (NumberFormatException e) {
+            showAlert(Alert.AlertType.ERROR, "Invalid Price", "Price must be a valid number.");
             return;
         }
 
         String lastName = nameParts[0];
         String firstName = nameParts[1];
 
+        // Vérification du nom du docteur
         String[] doctorNameParts = selectedDoctorName.split(" ");
         if (doctorNameParts.length < 2) {
             showAlert(Alert.AlertType.ERROR, "Invalid Doctor Name", "Please enter both first and last name for the doctor.");
@@ -212,19 +258,15 @@ public class booking {
         String doctorLastName = doctorNameParts[0];
         String doctorFirstName = doctorNameParts[1];
 
-        // Convert selectedHour to LocalTime
-        //String[] hourParts = selectedHour.split(":");
-        //LocalTime selectedTime = LocalTime.of(Integer.parseInt(hourParts[0]), Integer.parseInt(hourParts[1]));
-
-
+        // Conversion de l'heure sélectionnée en LocalTime
         String[] times = selectedHour.split(" - ");
-        String startTimeString = times[0].trim();  // "08:00"
-        String endTimeString = times[1].trim();
+        String startTimeString = times[0].trim();
         LocalTime selectedTime = LocalTime.parse(startTimeString);
-        // Combine the date and time into LocalDateTime
+
+        // Combinaison de la date et de l'heure
         LocalDateTime appointmentDateTime = LocalDateTime.of(selectedDate, selectedTime);
 
-
+        // Requête d'insertion dans la base de données
         String insertQuery = """
         INSERT INTO appointment (IDPatient, IDDoctor, AppointmentDate, Price, Paye, Status, IDService)
         VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -245,9 +287,6 @@ public class booking {
                 return;
             }
 
-            //int hour = Integer.parseInt(selectedHour.split(":")[0]);
-            //int minute = Integer.parseInt(selectedHour.split(":")[1]);
-
             statement.setInt(1, this.patientId);
             statement.setInt(2, doctorId);
             statement.setTimestamp(3, Timestamp.valueOf(appointmentDateTime));
@@ -260,6 +299,7 @@ public class booking {
             if (rowsAffected > 0) {
                 markTimeSlotAsUnavailable(appointmentDateTime, doctorId);
                 showAlert(Alert.AlertType.INFORMATION, "Appointment Created", "Your appointment has been scheduled successfully.");
+                resetForm();
             } else {
                 showAlert(Alert.AlertType.ERROR, "Error", "Failed to schedule the appointment. Please try again.");
             }
@@ -268,6 +308,19 @@ public class booking {
             e.printStackTrace();
             showAlert(Alert.AlertType.ERROR, "Database Error", "Error connecting to the database. Please try again.");
         }
+    }
+
+
+    // Method to clear the form
+    private void resetForm() {
+        fullNameField.clear();
+        specialityComboBox.getSelectionModel().clearSelection();
+        doctorComboBox.getSelectionModel().clearSelection();
+        appointmentDatePicker.setValue(null);
+        hoursComboBox.getSelectionModel().clearSelection();
+        priceField.clear();
+        serviceComboBox.getSelectionModel().clearSelection();
+        phoneNumberField.clear();
     }
     // Method to mark the selected time slot as unavailable
     private void markTimeSlotAsUnavailable(LocalDateTime appointmentDateTime, int doctorId) {

@@ -55,29 +55,58 @@ public class DoctorFormController implements Initializable {
 
     @FXML
     private void handleSubmitButtonAction() {
+        // Récupération des valeurs des champs
         String speciality = combo_speciality.getValue();
-        if (speciality == null) {
+        String nom = nomField.getText();
+        String prenom = prenomField.getText();
+        String tel = telField.getText();
+        String adresse = adresseField.getText();
+
+        // Vérification si tous les champs sont vides
+        if ((speciality == null || speciality.isEmpty()) &&
+                (nom == null || nom.isEmpty()) &&
+                (prenom == null || prenom.isEmpty()) &&
+                (tel == null || tel.isEmpty()) &&
+                (adresse == null || adresse.isEmpty())) {
+            showAlert(Alert.AlertType.WARNING, "All fields are empty. Please fill in the form.");
+            return;
+        }
+
+        // Vérification si la spécialité est vide
+        if (speciality == null || speciality.isEmpty()) {
             showAlert(Alert.AlertType.WARNING, "No speciality selected.");
             return;
         }
 
+        // Vérification si l'ID de la spécialité est introuvable
         Integer specialityId = specialityMap.get(speciality);
         if (specialityId == null) {
             showAlert(Alert.AlertType.WARNING, "Speciality ID not found.");
             return;
         }
 
-        String nom = nomField.getText();
-        String prenom = prenomField.getText();
-        String tel = telField.getText();
-        String adresse = adresseField.getText();
-
-        if (nom.isEmpty() || prenom.isEmpty() || tel.isEmpty() || adresse.isEmpty()) {
-            showAlert(Alert.AlertType.WARNING, "All fields must be filled.");
+        // Vérification des autres champs individuellement
+        if (nom == null || nom.isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "Nom field is empty.");
             return;
         }
 
-        // Add logic to handle the form submission
+        if (prenom == null || prenom.isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "Prenom field is empty.");
+            return;
+        }
+
+        if (adresse == null || adresse.isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "Adresse field is empty.");
+            return;
+        }
+
+        if (tel == null || tel.isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "Tel field is empty.");
+            return;
+        }
+
+        // Si tous les champs sont correctement remplis
         System.out.println("Speciality: " + speciality);
         System.out.println("Speciality ID: " + specialityId);
         System.out.println("Nom: " + nom);
@@ -85,21 +114,21 @@ public class DoctorFormController implements Initializable {
         System.out.println("Tel: " + tel);
         System.out.println("Adresse: " + adresse);
 
-        boolean done= DoctorService.insertDoctor(specialityId, nom, prenom, tel, adresse);
+        boolean done = DoctorService.insertDoctor(specialityId, nom, prenom, tel, adresse);
         if (done) {
             showAlert(Alert.AlertType.INFORMATION, "Doctor added successfully!");
-            // Close the update form
+            // Fermer le formulaire
             Stage stage = (Stage) title.getScene().getWindow();
             stage.close();
-            // Refresh doctor data in DoctorsList
+            // Actualiser la liste des docteurs
             if (doctorsListController != null) {
                 doctorsListController.refreshDoctorData();
             }
-        }
-        else {
+        } else {
             showAlert(Alert.AlertType.ERROR, "Error in inserting the new doctor");
         }
     }
+
 
     private void showAlert(Alert.AlertType alertType, String message) {
         Alert alert = new Alert(alertType);
