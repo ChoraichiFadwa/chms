@@ -17,6 +17,7 @@ public class MainMenuController {
     @FXML
     private AnchorPane root;
 
+    @FXML
     private Label welcomeLabel;// Zone centrale pour afficher dynamiquement les vues
 
     // Charger l'interface "Add Work Hour"
@@ -25,11 +26,6 @@ public class MainMenuController {
         loadUI("addWorkhour.fxml");
     }
 
-    // Charger l'interface "Check Availability"
-    @FXML
-    private void loadCheckAvailability() {
-        loadUI("CheckAvalaibility.fxml");
-    }
 
     // Charger l'interface "Delete Planning"
     @FXML

@@ -5,6 +5,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.stage.Stage;
 
 import java.sql.*;
 import java.time.LocalDate;
@@ -449,5 +450,7 @@ public class booking {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+        Stage stage = (Stage) fullNameField.getScene().getWindow();
+        stage.close();
     }
 }
