@@ -54,7 +54,7 @@ public class CheckAvalaibilityController {
 
         // Vérifier si tous les champs sont remplis
         if (selectedDoctor == null || selectedDate == null || selectedTime.isEmpty()) {
-            resultLabel.setText("Veuillez remplir tous les champs !");
+            resultLabel.setText("Please fill in all the fields!");
             return;
         }
 
@@ -81,25 +81,25 @@ public class CheckAvalaibilityController {
             if (resultSet.next()) {
                 int availability = resultSet.getInt("Availability");
                 if (availability == 1) {
-                    showAlert("Le créneau est disponible !", Alert.AlertType.INFORMATION);
+                    showAlert("The time slot is available!", Alert.AlertType.INFORMATION);
                 } else {
-                    showAlert("Le créneau est déjà pris.", Alert.AlertType.WARNING);
+                    showAlert("The time slot is already taken.", Alert.AlertType.WARNING);
                 }
             } else {
-                showAlert("Aucune donnée trouvée pour ce créneau.", Alert.AlertType.ERROR);
+                showAlert("No data found for this time slot.", Alert.AlertType.ERROR);
             }
 
             statement.close();
         } catch (SQLException e) {
             e.printStackTrace();
-            resultLabel.setText("Erreur lors de la vérification.");
+            resultLabel.setText("Error during verification.");
         }
     }
 
     // Méthode utilitaire pour afficher une alerte
     private void showAlert(String message, Alert.AlertType type) {
         Alert alert = new Alert(type);
-        alert.setTitle("Résultat de la vérification");
+        alert.setTitle("Verification result.");
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();

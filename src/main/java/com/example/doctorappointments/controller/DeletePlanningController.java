@@ -66,19 +66,19 @@ public class DeletePlanningController {
         String selectedSlot = slotsListView.getSelectionModel().getSelectedItem();
 
         if (selectedSlot == null) {
-            showAlert(Alert.AlertType.ERROR, "Erreur", "Veuillez sélectionner un créneau à modifier.");
+            showAlert(Alert.AlertType.ERROR, "Error", "Please select a time slot to modify.");
             return;
         }
 
         // Open a dialog to input the new slot
         TextInputDialog dialog = new TextInputDialog(selectedSlot);
-        dialog.setTitle("Modifier le créneau");
-        dialog.setHeaderText("Modifier le créneau sélectionné");
-        dialog.setContentText("Nouveau créneau (HH:mm):"); // Adjusted to HH:mm
+        dialog.setTitle("Modify the time slot.");
+        dialog.setHeaderText("Modify the selected time slot.");
+        dialog.setContentText("New time slot (HH:mm):"); // Adjusted to HH:mm
 
         Optional<String> result = dialog.showAndWait();
         if (result.isEmpty() || result.get().isEmpty()) {
-            showAlert(Alert.AlertType.ERROR, "Erreur", "Aucun créneau n'a été saisi.");
+            showAlert(Alert.AlertType.ERROR, "Error", "No time slot has been entered.");
             return;
         }
 
@@ -86,7 +86,7 @@ public class DeletePlanningController {
 
         // Validate the new slot format (HH:mm)
         if (!isValidTimeSlot(newSlot)) {
-            showAlert(Alert.AlertType.ERROR, "Erreur", "Veuillez entrer un créneau valide au format HH:mm.");
+            showAlert(Alert.AlertType.ERROR, "Error", "Please enter a valid time slot in the HH:mm format.");
             return;
         }
 
@@ -94,7 +94,7 @@ public class DeletePlanningController {
         LocalDate selectedDate = datePicker.getValue();
 
         if (selectedDoctor == null || selectedDate == null) {
-            showAlert(Alert.AlertType.ERROR, "Erreur", "Veuillez sélectionner un médecin et une date.");
+            showAlert(Alert.AlertType.ERROR, "Error", "Please select a doctor and a date.");
             return;
         }
 
@@ -134,13 +134,13 @@ public class DeletePlanningController {
             if (rowsUpdated > 0) {
                 // Update the slot in the ListView
                 availableSlots.set(availableSlots.indexOf(selectedSlot), newSlot);
-                showAlert(Alert.AlertType.INFORMATION, "Succès", "Le créneau a été modifié avec succès !");
+                showAlert(Alert.AlertType.INFORMATION, "Success", "The time slot has been successfully modified!");
             } else {
-                showAlert(Alert.AlertType.ERROR, "Erreur", "La modification du créneau a échoué. Veuillez vérifier les données.");
+                showAlert(Alert.AlertType.ERROR, "Error", "The time slot modification failed. Please check the data.");
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Erreur", "Une erreur est survenue lors de la modification du créneau.");
+            showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while modifying the time slot.");
         }
     }
 
@@ -164,7 +164,7 @@ public class DeletePlanningController {
         String selectedDate = (datePicker.getValue() != null) ? datePicker.getValue().toString() : null;
 
         if (selectedDoctor == null || selectedDate == null) {
-            slotsListView.setItems(FXCollections.observableArrayList("Veuillez sélectionner un médecin et une date."));
+            slotsListView.setItems(FXCollections.observableArrayList("Please select a doctor and a date."));
             deleteButton.setDisable(true);
             return;
         }
@@ -174,7 +174,7 @@ public class DeletePlanningController {
 
         if (doctorId == null) {
             // Si l'ID du médecin n'est pas trouvé, afficher un message d'erreur
-            showAlert(Alert.AlertType.INFORMATION, "Erreur", "Médecin introuvable.");
+            showAlert(Alert.AlertType.INFORMATION, "Error", "Doctor not found.");
             return;
         }
 
@@ -209,7 +209,7 @@ public class DeletePlanningController {
 
         // Si aucun créneau n'est disponible, afficher un message
         if (availableSlots.isEmpty()) {
-            showAlert(Alert.AlertType.INFORMATION, "Aucun créneau disponible", "Il n'y a pas de créneau disponible pour ce médecin et cette date.");
+            showAlert(Alert.AlertType.INFORMATION, "No time slot available.", "There is no available time slot for this doctor and this date.");
         } else {
             slotsListView.setItems(availableSlots);
         }
@@ -256,7 +256,7 @@ public class DeletePlanningController {
         availableSlots.removeAll(selectedSlots);
         deleteButton.setDisable(availableSlots.isEmpty()); // Désactiver le bouton si plus de créneaux
 
-        showAlert(Alert.AlertType.INFORMATION, "Suppression réussie", "Les créneaux sélectionnés ont été supprimés avec succès.");
+        showAlert(Alert.AlertType.INFORMATION, "Deletion successful.", "The selected time slots have been successfully deleted.");
     }
 
     // Méthode pour afficher une alerte

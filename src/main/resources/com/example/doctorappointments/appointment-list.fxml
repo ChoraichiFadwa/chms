@@ -18,8 +18,8 @@
         <TextField fx:id="SearchFieldText" layoutX="84.0" layoutY="21.0" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="38.0" prefWidth="549.0" promptText="search by doctor name, patient name, service or status" style="-fx-background-color: white; -fx-border-color: #5A9BD5; -fx-border-radius: 7px; -fx-cursor: text;" AnchorPane.leftAnchor="44.0" />
         <TableView fx:id="AppointmentTableView" layoutX="50.0" layoutY="81.0" prefHeight="537.0" prefWidth="1000.0" AnchorPane.bottomAnchor="74.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="81.0">
             <columns>
-                <TableColumn fx:id="DoctorNameTableColumn" prefWidth="130.0" text="Doctor" />
-                <TableColumn fx:id="PatientNameTableColumn" prefWidth="120.0" text="Patient" />
+                <TableColumn fx:id="DoctorNameTableColumn" prefWidth="110.0" text="Doctor" />
+                <TableColumn fx:id="PatientNameTableColumn" prefWidth="115.0" text="Patient" />
                 <TableColumn fx:id="AppointmentDateTableColumn" prefWidth="80.0" text="Date" />
                 <TableColumn fx:id="AppointmentTimeTableColumn" prefWidth="80.0" text="Time" />
                 <TableColumn fx:id="ServiceTableColumn" prefWidth="100.0" text="Service" />

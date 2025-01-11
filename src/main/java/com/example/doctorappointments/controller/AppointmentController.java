@@ -111,8 +111,8 @@ public class AppointmentController {
 
 
         ActionsTableColumn.setCellFactory(param -> new TableCell<AppointmentDetails, Void>() {
-            private final Button ordonnanceTestButton = new Button("Ordonnance Test");
-            private final Button ordonnanceVisiteButton = new Button("Ordonnance Visite");
+            private final Button ordonnanceTestButton = new Button("Test prescription");
+            private final Button ordonnanceVisiteButton = new Button("Medication prescription");
             private final Button reporterButton = new Button("Reschedule");
             private final Button annulerButton = new Button("Cancel");
 
@@ -170,6 +170,7 @@ public class AppointmentController {
                         serviceName.contains(searchKeyword);
             });
 
+            AppointmentTableView.refresh();
             updatePagination(filteredAppointments);
         });
 
@@ -181,7 +182,7 @@ public class AppointmentController {
                 LocalDate selectedDate = newValue;
                 return appointment.getFormattedDate().equals(selectedDate.toString());
             });
-
+            AppointmentTableView.refresh();
             updatePagination(filteredAppointments);
         });
 

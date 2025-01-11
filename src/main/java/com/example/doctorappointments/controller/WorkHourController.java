@@ -65,23 +65,23 @@ public class WorkHourController {
 
         // Vérifier que la date et le médecin sont sélectionnés
         if (selectedDate == null || selectedDoctor == null) {
-            showAlert("Erreur", "Veuillez sélectionner une date et un médecin.", Alert.AlertType.WARNING);
+            showAlert("Error", "Please select a date and a doctor.", Alert.AlertType.WARNING);
             return;
         }
 
         // Vérifier si au moins l'un des créneaux (matin ou après-midi) est rempli
         if ((morningSlot == null || morningSlot.isEmpty()) && (afternoonSlot == null || afternoonSlot.isEmpty())) {
-            showAlert("Erreur", "Veuillez remplir au moins un des créneaux horaires (matin ou après-midi).", Alert.AlertType.WARNING);
+            showAlert("Error", "Please fill in at least one of the time slots (morning or afternoon).", Alert.AlertType.WARNING);
             return;
         }
 
         // Vérifier les formats des créneaux s'ils sont remplis
         if (morningSlot != null && !morningSlot.isEmpty() && !isValidTimeSlot(morningSlot)) {
-            showAlert("Erreur", "Le créneau du matin doit être au format HH:mm-HH:mm.", Alert.AlertType.WARNING);
+            showAlert("Error", "The morning time slot must be in the HH:mm-HH:mm format.", Alert.AlertType.WARNING);
             return;
         }
         if (afternoonSlot != null && !afternoonSlot.isEmpty() && !isValidTimeSlot(afternoonSlot)) {
-            showAlert("Erreur", "Le créneau de l'après-midi doit être au format HH:mm-HH:mm.", Alert.AlertType.WARNING);
+            showAlert("Error", "The afternoon time slot must be in the HH:mm-HH:mm format.", Alert.AlertType.WARNING);
             return;
         }
 
@@ -106,11 +106,11 @@ public class WorkHourController {
                 }
             }
 
-            showAlert("Succès", "Disponibilités ajoutées avec succès pour le médecin sélectionné !", Alert.AlertType.INFORMATION);
+            showAlert("Success", "Availability successfully added for the selected doctor!", Alert.AlertType.INFORMATION);
             clearFields();
         } catch (Exception e) {
             e.printStackTrace();
-            showAlert("Erreur", "Une erreur est survenue lors de l'ajout des disponibilités.", Alert.AlertType.ERROR);
+            showAlert("Error", "An error occurred while adding the availability.", Alert.AlertType.ERROR);
         }
     }
 

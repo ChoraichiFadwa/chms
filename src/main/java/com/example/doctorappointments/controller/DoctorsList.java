@@ -74,10 +74,10 @@ public class DoctorsList {
 
 
         // Dynamically set column widths (optional)
-        doctorNameTableColumn.prefWidthProperty().bind(doctorTableView.widthProperty().multiply(0.25));
+        doctorNameTableColumn.prefWidthProperty().bind(doctorTableView.widthProperty().multiply(0.17));
         specialityTableColumn.prefWidthProperty().bind(doctorTableView.widthProperty().multiply(0.20));
-        telTableColumn.prefWidthProperty().bind(doctorTableView.widthProperty().multiply(0.25));
-        adresseTableColumn.prefWidthProperty().bind(doctorTableView.widthProperty().multiply(0.30));
+        telTableColumn.prefWidthProperty().bind(doctorTableView.widthProperty().multiply(0.20));
+        adresseTableColumn.prefWidthProperty().bind(doctorTableView.widthProperty().multiply(0.25));
 
         // Populate the TableView with the doctor data
 

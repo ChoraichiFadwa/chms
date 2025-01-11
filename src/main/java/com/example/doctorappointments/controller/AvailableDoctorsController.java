@@ -47,7 +47,7 @@ public class AvailableDoctorsController {
             statement.close();
         } catch (SQLException e) {
             e.printStackTrace();
-            showAlert("Erreur lors du chargement des spécialités.", Alert.AlertType.ERROR);
+            showAlert("Error while loading the specialties.", Alert.AlertType.ERROR);
         }
     }
 
@@ -59,7 +59,7 @@ public class AvailableDoctorsController {
 
         if (selectedDate == null) {
             // Afficher un message d'alerte si la date n'est pas sélectionnée
-            showAlert("Veuillez sélectionner une date.", Alert.AlertType.WARNING);
+            showAlert("Please select a date.", Alert.AlertType.WARNING);
             return;
         }
 
@@ -109,13 +109,13 @@ public class AvailableDoctorsController {
 
             // Vérifier si aucun résultat n'a été trouvé
             if (!resultsFound) {
-                showAlert("Aucun médecin disponible pour cette date et spécialité.", Alert.AlertType.INFORMATION);
+                showAlert("No doctor available for this date and specialty.", Alert.AlertType.INFORMATION);
             }
 
             statement.close();
         } catch (SQLException e) {
             e.printStackTrace();
-            showAlert("Une erreur est survenue lors de la récupération des données.", Alert.AlertType.ERROR);
+            showAlert("An error occurred while retrieving the data.", Alert.AlertType.ERROR);
         }
     }
 
